@@ -1,0 +1,311 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Grocery Management Service API",
+    "description": "API for managing grocery items inside a refrigerator, allowing users to add, delete, update, and list items, as well as check for expired items.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support Team",
+      "url": "http://support.grocerymanagement.com",
+      "email": "support@grocerymanagement.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Items",
+      "description": "Operations related to grocery items in the fridge"
+    }
+  ],
+  "paths": {
+    "/items": {
+      "get": {
+        "operationId": "listItems",
+        "tags": [
+          "Items"
+        ],
+        "summary": "List all grocery items",
+        "description": "Retrieves a list of all grocery items in the refrigerator along with their quantities and expiration dates.",
+        "responses": {
+          "200": {
+            "description": "A list of grocery items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No items found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "addItem",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Add a new grocery item",
+        "description": "Adds a new grocery item to the refrigerator.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item successfully added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/items/{itemId}": {
+      "get": {
+        "operationId": "getItem",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Get a grocery item by ID",
+        "description": "Retrieves a specific grocery item by its ID.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the grocery item to retrieve",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A grocery item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateItem",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Update a grocery item",
+        "description": "Updates the details of an existing grocery item.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the grocery item to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteItem",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Delete a grocery item",
+        "description": "Deletes a grocery item from the refrigerator.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the grocery item to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item successfully deleted"
+          },
+          "404": {
+            "description": "Item not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/items/search": {
+      "get": {
+        "operationId": "searchItem",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Search for a grocery item",
+        "description": "Searches for grocery items based on a query string.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "The search query for grocery items",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of matching grocery items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No items found matching the query"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/items/expired": {
+      "get": {
+        "operationId": "getExpiredItems",
+        "tags": [
+          "Items"
+        ],
+        "summary": "Get expired grocery items",
+        "description": "Retrieves a list of all expired grocery items in the refrigerator.",
+        "responses": {
+          "200": {
+            "description": "A list of expired grocery items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No expired items found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "quantity",
+          "expirationDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the grocery item",
+            "example": "item123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the grocery item",
+            "example": "Milk"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the grocery item",
+            "example": 2
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Expiration date of the grocery item",
+            "example": "2023-10-31"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ItemList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Item"
+        }
+      }
+    }
+  }
+}
