@@ -55,12 +55,12 @@ jobs:
         with:
           go-version: "${{ env.GO_VERSION }}"
 
-      # - name: Go tests
-        # run: |
-          # go mod download
-          # go test -v ./cmd... -race
-          # go test -v ./internal... -race
-        # working-directory: ./grocerymanagement/grocery-management/
+      - name: Go tests
+         run: |
+           go mod download
+           go test -v ./cmd... -race
+           go test -v ./internal... -race
+         working-directory: ./grocerymanagement/grocery-management/
   deploy:
     needs: [lint, go-tests]
     runs-on: ubuntu-latest
@@ -77,8 +77,8 @@ jobs:
       - name: Make the binary executable
         run: chmod a+x /usr/local/bin/blackbird
         
-      # - name: Blackbird Login
-      #  run: blackbird login
+      - name: Blackbird Login
+        run: blackbird login
 
       - name: Deploy to Blackbird
         run: blackbird deployment update grocery-management --dockerfile Dockerfile --context .
