@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/url"
+
+	"github.com/gorilla/mux"
 )
 
 // HandleAddItem handles parsing input to pass to the AddItem operation and sends responses back to the client
@@ -43,7 +44,7 @@ func (h *APIHandler) HandleDeleteItem(w http.ResponseWriter, r *http.Request) {
 
 	var itemId string
 	itemId = pathParams["itemId"]
-	if itemId == ""{
+	if itemId == "" {
 		ErrorResponseWithMsg(http.StatusBadRequest, "request is missing required path parameter 'itemId'", w)
 		return
 	}
@@ -82,7 +83,7 @@ func (h *APIHandler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 
 	var itemId string
 	itemId = pathParams["itemId"]
-	if itemId == ""{
+	if itemId == "" {
 		ErrorResponseWithMsg(http.StatusBadRequest, "request is missing required path parameter 'itemId'", w)
 		return
 	}
@@ -151,7 +152,7 @@ func (h *APIHandler) HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	var itemId string
 	itemId = pathParams["itemId"]
-	if itemId == ""{
+	if itemId == "" {
 		ErrorResponseWithMsg(http.StatusBadRequest, "request is missing required path parameter 'itemId'", w)
 		return
 	}
@@ -180,4 +181,3 @@ func (h *APIHandler) HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error().Msgf("UpdateItem was unable to send it's response, err: %s", err)
 	}
 }
-

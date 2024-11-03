@@ -80,6 +80,28 @@ func getGroceryItems() ([]Item, error) {
 	return items, nil
 }
 
+// getGroceryItems retrieves all items from the `grocery_items` table.
+func getGroceryItemById(itemId string) (*Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Prepare the query using a variable
+	var item Item
+	query := "SELECT id, name, category, quantity, expiration_date FROM grocery_items WHERE id = $1"
+
+	// Execute the query with the id variable
+	err = conn.QueryRow(context.Background(), query, itemId).Scan(&item.Id, &item.Name, &item.Category, &item.Quantity, &item.ExpirationDate)
+	if err != nil {
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+
+	return &item, nil
+}
+
 // Adds a new grocery item to the refrigerator.
 // Add a new grocery item
 func (h *APIHandler) AddItem(ctx context.Context, reqBody Item) (Response, error) {
@@ -125,19 +147,17 @@ func (h *APIHandler) GetExpiredItems(ctx context.Context) (Response, error) {
 // Retrieves a specific grocery item by its ID.
 // Get a grocery item by ID
 func (h *APIHandler) GetItem(ctx context.Context, itemId string) (Response, error) {
-	// TODO: implement the GetItem function to return the following responses
 
-	// return NewResponse(200, Item{}, "application/json", responseHeaders), nil
+	item, err := getGroceryItemById(itemId)
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(404, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"getItem operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, item, "application/json", nil), nil
 }
 
+// List all items
 // Retrieves a list of all grocery items in the refrigerator along with their quantities and expiration dates.
-// List all grocery items
 func (h *APIHandler) ListItems(ctx context.Context) (Response, error) {
 
 	items, err := getGroceryItems()
