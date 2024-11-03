@@ -72,22 +72,13 @@ jobs:
         run: curl -sSL https://getambassador.io/blackbird/install.sh | sh
 
       - name: Blackbird Login
-        env:
-          BLACKBIRD_API_TOKEN: ${{ secrets.BLACKBIRD_API_TOKEN }}
-        run: |
-          blackbird login --token $BLACKBIRD_API_TOKEN
+        run: blackbird login
 
       - name: Deploy to Blackbird
-        env:
-          BLACKBIRD_API_TOKEN: ${{ secrets.BLACKBIRD_API_TOKEN }}
-        run: |
-          blackbird deployment create -d .
+        run: blackbird deployment update grocery-management --dockerfile Dockerfile --context .
 
       - name: Check Deployment Status
-        env:
-          BLACKBIRD_API_TOKEN: ${{ secrets.BLACKBIRD_API_TOKEN }}
-        run: |
-          blackbird deployment status
+        run: blackbird deployment status
 
       - name: Logout from Blackbird
         run: blackbird logout
