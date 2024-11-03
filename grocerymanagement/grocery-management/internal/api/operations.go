@@ -80,7 +80,7 @@ func getGroceryItems() ([]Item, error) {
 	return items, nil
 }
 
-// getGroceryItems retrieves all items from the `grocery_items` table.
+// getGroceryItemById retrieves the grocery details of an item by its ID.
 func getGroceryItemById(itemId string) (*Item, error) {
 	// Get the database connection
 	conn, err := dbConnection()
@@ -100,6 +100,47 @@ func getGroceryItemById(itemId string) (*Item, error) {
 	}
 
 	return &item, nil
+}
+
+// getGroceryItemByName retrieves the grocery details of an item by its name.
+func getGroceryItemByName(name string) (*Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Prepare the query using a variable
+	var item Item
+	query := "SELECT id, name, category, quantity, expiration_date FROM grocery_items WHERE name = $1"
+
+	// Execute the query with the id variable
+	err = conn.QueryRow(context.Background(), query, name).Scan(&item.Id, &item.Name, &item.Category, &item.Quantity, &item.ExpirationDate)
+	if err != nil {
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+
+	return &item, nil
+}
+
+// updateGroceryItemById updates the grocery details of an item by its Id.
+func updateGroceryItemById(itemId string, itemDetails Item) (*Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Update query
+	query := "UPDATE grocery_items SET name = $1, category = $2, quantity = $3, expiration_date = $4 WHERE id = $5"
+	_, err = conn.Exec(context.Background(), query, itemDetails.Name, itemDetails.Category, itemDetails.Quantity, itemDetails.ExpirationDate, itemId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update item: %w", err)
+	}
+
+	return nil, nil
 }
 
 // Adds a new grocery item to the refrigerator.
@@ -171,27 +212,23 @@ func (h *APIHandler) ListItems(ctx context.Context) (Response, error) {
 // Searches for grocery items based on a query string.
 // Search for a grocery item
 func (h *APIHandler) SearchItem(ctx context.Context, query string) (Response, error) {
-	// TODO: implement the SearchItem function to return the following responses
 
-	// return NewResponse(200, []Item, "application/json", responseHeaders), nil
+	item, err := getGroceryItemByName(query)
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(404, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"XXXXXXXXX -- searchItem operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, item, "application/json", nil), nil
 }
 
 // Updates the details of an existing grocery item.
 // Update a grocery item
 func (h *APIHandler) UpdateItem(ctx context.Context, itemId string, reqBody Item) (Response, error) {
-	// TODO: implement the UpdateItem function to return the following responses
 
-	// return NewResponse(200, Item{}, "application/json", responseHeaders), nil
+	item, err := updateGroceryItemById(itemId, reqBody)
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(404, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"updateItem operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, item, "application/json", nil), nil
 }
