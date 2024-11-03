@@ -68,9 +68,15 @@ jobs:
       - name: Checkout local
         uses: actions/checkout@v3
         
-      - name: Install Blackbird CLI
-        run: curl -fL 'https://blackbird.a8r.io/api/download/cli/v1.7.0/linux/amd64'
+      - name: Create directory
+        run: mkdir -p /usr/local/bin
 
+      - name: Install Blackbird CLI
+        run: curl -fL 'https://blackbird.a8r.io/api/download/cli/v1.7.0/linux/amd64' -o /usr/local/bin/blackbird
+
+      - name: Make the binary executable
+        run: chmod a+x /usr/local/bin/blackbird
+        
       - name: Blackbird Login
         run: blackbird login
 
