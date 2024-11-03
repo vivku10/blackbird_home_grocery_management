@@ -77,8 +77,8 @@ jobs:
       - name: Make the binary executable
         run: chmod a+x /usr/local/bin/blackbird
         
-      - name: Blackbird Login
-        run: blackbird login
+      # - name: Blackbird Login
+      #  run: blackbird login
 
       - name: Deploy to Blackbird
         run: blackbird deployment update grocery-management --dockerfile Dockerfile --context .
