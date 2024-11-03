@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -80,6 +79,70 @@ func getGroceryItems() ([]Item, error) {
 	return items, nil
 }
 
+// getExpiredGroceryItems retrieves all items from the `grocery_items` table which has passed expiration date.
+func getExpiredGroceryItems() ([]Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Query the database
+	now := time.Now().Format(time.RFC3339) //.String()
+	query := "SELECT id, name, category, quantity, expiration_date FROM grocery_items WHERE expiration_date < $1"
+
+	rows, err := conn.Query(context.Background(), query, now)
+	if err != nil {
+		//log.Fatalf("Query failed: %v\n", err)
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+	defer rows.Close()
+
+	// Process the rows into a slice of Item structs
+	var items []Item
+	for rows.Next() {
+		var item Item
+		if err := rows.Scan(&item.Id, &item.Name, &item.Category, &item.Quantity, &item.ExpirationDate); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		items = append(items, item)
+	}
+
+	// Check for any errors encountered during iteration
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return items, nil
+}
+
+// deleteGroceryItemById deletes the grocery details of an item by its ID.
+func deleteGroceryItemById(itemId string) (*Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Prepare the query using a variable
+	query := "DELETE FROM grocery_items WHERE id = $1"
+
+	// Execute the DELETE statement
+	result, err := conn.Exec(context.Background(), query, itemId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete row: %w", err)
+	}
+
+	// Check if any row was deleted
+	if result.RowsAffected() == 0 {
+		return nil, fmt.Errorf("no row found with id %s", itemId)
+	}
+
+	return nil, nil
+}
+
 // getGroceryItemById retrieves the grocery details of an item by its ID.
 func getGroceryItemById(itemId string) (*Item, error) {
 	// Get the database connection
@@ -143,46 +206,61 @@ func updateGroceryItemById(itemId string, itemDetails Item) (*Item, error) {
 	return nil, nil
 }
 
+// addGroceryItem adds a grocery item.
+func addGroceryItem(itemDetails Item) (*Item, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Insert query
+	query := "INSERT INTO grocery_items(name, category, quantity, expiration_date) VALUES($1, $2, $3, $4)"
+
+	// Execute the INSERT statement
+	_, err = conn.Exec(context.Background(), query, itemDetails.Name, itemDetails.Category, itemDetails.Quantity, itemDetails.ExpirationDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to insert item: %w", err)
+	}
+
+	return nil, nil
+}
+
 // Adds a new grocery item to the refrigerator.
 // Add a new grocery item
 func (h *APIHandler) AddItem(ctx context.Context, reqBody Item) (Response, error) {
-	// TODO: implement the AddItem function to return the following responses
 
-	// return NewResponse(201, Item{}, "application/json", responseHeaders), nil
+	item, err := addGroceryItem(reqBody)
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(400, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"addItem operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, item, "application/json", nil), nil
 }
 
 // Deletes a grocery item from the refrigerator.
 // Delete a grocery item
 func (h *APIHandler) DeleteItem(ctx context.Context, itemId string) (Response, error) {
-	// TODO: implement the DeleteItem function to return the following responses
 
-	// return NewResponse(204, {}, "", responseHeaders), nil
+	item, err := deleteGroceryItemById(itemId)
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(404, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"deleteItem operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, item, "application/json", nil), nil
 }
 
 // Retrieves a list of all expired grocery items in the refrigerator.
 // Get expired grocery items
 func (h *APIHandler) GetExpiredItems(ctx context.Context) (Response, error) {
-	// TODO: implement the GetExpiredItems function to return the following responses
 
-	// return NewResponse(200, []Item, "application/json", responseHeaders), nil
+	items, err := getExpiredGroceryItems()
+	if err != nil {
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
+	}
 
-	// return NewResponse(404, {}, "", responseHeaders), nil
-
-	// return NewResponse(500, {}, "", responseHeaders), nil
-
-	return NewResponse(http.StatusNotImplemented, ErrorMsg{"getExpiredItems operation has not been implemented yet"}, "application/json", nil), nil
+	return NewResponse(200, items, "application/json", nil), nil
 }
 
 // Retrieves a specific grocery item by its ID.
