@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -31,6 +30,54 @@ func NewAPIHandler() *APIHandler {
 func (h *APIHandler) WithLogger(logger zerolog.Logger) *APIHandler {
 	h.logger = logger
 	return h
+}
+
+// Create a connection to the database.
+func dbConnection() (*pgx.Conn, error) {
+	connStr := "postgresql://postgres:BlackbirdAPIashaygayathrivivek1011@database-grocery-blackbird.c95hdma6vizc.us-east-1.rds.amazonaws.com:5432/postgres"
+
+	// Open the database connection
+	conn, err := pgx.Connect(context.Background(), connStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	return conn, nil
+}
+
+// getGroceryItems retrieves all items from the `grocery_items` table.
+func getGroceryItems() ([]GroceryItem, error) {
+	// Get the database connection
+	conn, err := dbConnection()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to database: %w", err)
+	}
+	defer conn.Close(context.Background()) // Ensure the connection is closed after usage
+
+	// Query the database
+	rows, err := conn.Query(context.Background(), "SELECT id, name, category, quantity, expiration_date FROM grocery_items")
+	if err != nil {
+		//log.Fatalf("Query failed: %v\n", err)
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+	defer rows.Close()
+
+	// Process the rows into a slice of Item structs
+	var items []GroceryItem
+	for rows.Next() {
+		var item GroceryItem
+		if err := rows.Scan(&item.id, &item.name, &item.category, &item.quantity, &item.expiration_date); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		items = append(items, item)
+	}
+
+	// Check for any errors encountered during iteration
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return items, nil
 }
 
 // Adds a new grocery item to the refrigerator.
@@ -92,65 +139,13 @@ func (h *APIHandler) GetItem(ctx context.Context, itemId string) (Response, erro
 // Retrieves a list of all grocery items in the refrigerator along with their quantities and expiration dates.
 // List all grocery items
 func (h *APIHandler) ListItems(ctx context.Context) (Response, error) {
-	// Database connection string
-	//DATABASE_URL=postgresql://postgres:BlackbirdAPIashaygayathrivivek1011@database-grocery-blackbird.c95hdma6vizc.us-east-1.rds.amazonaws.com:5432/postgres
 
-	// Database connection string
-	//connString := "postgres://username:password@localhost:5432/dbname"
-	connString := "postgresql://postgres:BlackbirdAPIashaygayathrivivek1011@database-grocery-blackbird.c95hdma6vizc.us-east-1.rds.amazonaws.com:5432/postgres"
-
-	// Establish a connection
-	conn, err := pgx.Connect(context.Background(), connString)
+	items, err := getGroceryItems()
 	if err != nil {
-		//log.Fatalf("Unable to connect to database: %v\n", err)
-		return NewResponse(404, ErrorMsg{fmt.Sprintf("Unable to connect to database: %v\n", err)}, "application/json", nil), nil
-	}
-	defer conn.Close(context.Background())
-
-	// Query the database
-	rows, err := conn.Query(context.Background(), "SELECT id, name, category, quantity, expiration_date FROM grocery_items")
-	if err != nil {
-		//log.Fatalf("Query failed: %v\n", err)
-		return NewResponse(404, ErrorMsg{fmt.Sprintf("Query failed: %v\n", err)}, "application/json", nil), nil
-	}
-	defer rows.Close()
-
-	// Iterate over the rows and print each item
-	var items []GroceryItem
-	for rows.Next() {
-		var item GroceryItem
-		err := rows.Scan(&item.id, &item.name, &item.category, &item.quantity, &item.expiration_date)
-		if err != nil {
-			//log.Fatalf("Failed to scan row: %v\n", err)
-			return NewResponse(404, ErrorMsg{fmt.Sprintf("Failed to scan row: %v\n", err)}, "application/json", nil), nil
-		}
-		items = append(items, item)
+		return NewResponse(404, ErrorMsg{fmt.Sprintf("%v", err)}, "application/json", nil), nil
 	}
 
-	if rows.Err() != nil {
-		//log.Fatalf("Error iterating rows: %v\n", rows.Err())
-		return NewResponse(404, ErrorMsg{fmt.Sprintf("Error iterating rows: %v\n", rows.Err())}, "application/json", nil), nil
-	}
-
-	// Convert items slice to JSON
-	jsonData, err := json.Marshal(items)
-	if err != nil {
-		//log.Fatalf("Failed to convert to JSON: %v", err)
-		return NewResponse(404, ErrorMsg{fmt.Sprintf("Failed to convert to JSON: %v", err)}, "application/json", nil), nil
-	}
-
-	// Convert JSON byte slice to a string and print it
-	jsonString := string(jsonData)
-	//fmt.Println(jsonString)
-	return NewResponse(200, jsonString, "application/json", nil), nil
-
-	// Print retrieved items
-	//fmt.Println("Items in database:")
-	//for _, item := range items {
-	//	fmt.Printf("ID: %d, Name: %s, Quantity: %d\n", item.id, item.name, item.category, item.quantity, item.expirationDate)
-	//}
-
-	//return NewResponse(404, ErrorMsg{"ListItems API failed"}, "application/json", nil), nil
+	return NewResponse(200, items, "application/json", nil), nil
 
 	// TODO: implement the ListItems function to return the following responses
 
