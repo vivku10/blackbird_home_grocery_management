@@ -19,6 +19,9 @@ func (h *APIHandler) HandleAddItem(w http.ResponseWriter, r *http.Request) {
 		ErrorResponseWithMsg(http.StatusBadRequest, "request body was not able to be parsed successfully 'Item'", w)
 		return
 	}
+
+	// Set a default Id for the item which will not be used for inserting though
+	reqBody.Id = 1
 	if err := reqBody.Validate(); err != nil {
 		errMsg := fmt.Errorf("request body was parsed successfully but failed validation, err: %w", err)
 		ErrorResponseWithMsg(http.StatusBadRequest, errMsg.Error(), w)
