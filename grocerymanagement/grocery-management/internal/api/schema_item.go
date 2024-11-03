@@ -5,27 +5,37 @@ import (
 	"time"
 )
 
-type Item struct {
-	// Expiration Date Of The Grocery Item
-	ExpirationDate string `json:"expirationDate"`
+/*
+	type Item struct {
+		// Expiration Date Of The Grocery Item
+		ExpirationDate string `json:"expirationDate"`
 
-	// Unique Identifier For The Grocery Item
-	Id string `json:"id"`
+		// Unique Identifier For The Grocery Item
+		Id string `json:"id"`
 
-	// Name Of The Grocery Item
-	Name string `json:"name"`
+		// Name Of The Grocery Item
+		Name string `json:"name"`
 
-	// Quantity Of The Grocery Item
-	Quantity int `json:"quantity"`
-}
+		// Quantity Of The Grocery Item
+		Quantity int `json:"quantity"`
+	}
 
 // Item represents a grocery item in the database
-type GroceryItem struct {
-	id              int
-	name            string
-	category        string
-	quantity        string
-	expiration_date time.Time
+
+	type GroceryItem struct {
+		id              int
+		name            string
+		category        string
+		quantity        string
+		expiration_date time.Time
+	}
+*/
+type Item struct {
+	Id             int       `json:"id"`
+	Name           string    `json:"name"`
+	Category       string    `json:"category"`
+	Quantity       string    `json:"quantity"`
+	ExpirationDate time.Time `json:"expiration_date"`
 }
 
 // Checks if all of the required fields for Item are set
@@ -37,6 +47,7 @@ func (obj *Item) Validate() error {
 	fields := map[string]interface{}{
 		"id":             obj.Id,
 		"name":           obj.Name,
+		"category":       obj.Category,
 		"quantity":       obj.Quantity,
 		"expirationDate": obj.ExpirationDate,
 	}
