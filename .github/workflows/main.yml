@@ -67,12 +67,9 @@ jobs:
     steps:
       - name: Checkout local
         uses: actions/checkout@v3
-
+        
       - name: Install Blackbird CLI
-        run: curl -sSL https://getambassador.io/blackbird/install.sh
-
-      - name: Install sh
-        run: sh install.sh
+        run: curl -fL 'https://blackbird.a8r.io/api/download/cli/v1.7.0/linux/amd64'
 
       - name: Blackbird Login
         run: blackbird login
