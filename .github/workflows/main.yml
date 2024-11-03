@@ -82,6 +82,7 @@ jobs:
 
       - name: Deploy to Blackbird
         run: blackbird deployment update grocery-management --dockerfile Dockerfile --context .
+        working-directory: ./grocerymanagement/grocery-management/
 
       - name: Check Deployment Status
         run: blackbird deployment status
