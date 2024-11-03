@@ -69,7 +69,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Blackbird CLI
-        run: curl -sSL https://getambassador.io/blackbird/install.sh | bash
+        run: curl -sSL https://getambassador.io/blackbird/install.sh
+
+      - name: Install sh
+        run: sh install.sh
 
       - name: Blackbird Login
         run: blackbird login
