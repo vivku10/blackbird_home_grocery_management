@@ -19,7 +19,14 @@ blackbird deployment update grocery-management --dockerfile Dockerfile --context
 
 ## Endpoint definitions and commands
 
-### Endpoint 1 - Adds a new grocery item to the refrigerator
+### Endpoint 1 - Get all grocery items in the fridge
+```
+curl --request GET \
+  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items \
+  --header 'Accept: application/json'
+```
+
+### Endpoint 2 - Add a new grocery item to the fridge
 ```
 curl --request POST \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items \
@@ -33,27 +40,14 @@ curl --request POST \
 }'
 ```
 
-### Endpoint 2 - Searches for grocery items based on name
-```
-curl --request GET \
-  --url 'https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/search?query=Burger' \
-  --header 'Accept: application/json'
-```
-
-### Endpoint 3 - Retrieves a specific grocery item by its ID
+### Endpoint 3 - Get a grocery item by ID
 ```
 curl --request GET \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/3 \
   --header 'Accept: application/json'
 ```
 
-### Endpoint 4 - Deletes a grocery item from the refrigerator
-```
-curl --request DELETE \
-  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/22
-```
-
-### Endpoint 5 - Updates the details of an existing grocery item
+### Endpoint 4 - Update a grocery item by ID
 ```
 curl --request PUT \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/3 \
@@ -68,16 +62,22 @@ curl --request PUT \
 }'
 ```
 
-### Endpoint 6 - Retrieves a list of all expired grocery items in the refrigerator
+### Endpoint 5 - Delete a grocery item
+```
+curl --request DELETE \
+  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/22
+```
+
+### Endpoint 6 - Search for a grocery item
 ```
 curl --request GET \
-  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/expired \
+  --url 'https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/search?query=Burger' \
   --header 'Accept: application/json'
 ```
 
-### Endpoint 7 - Retrieves a list of all grocery items in the refrigerator along with their quantities and expiration dates
+### Endpoint 7 - Get all expired grocery items
 ```
 curl --request GET \
-  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items \
+  --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/expired \
   --header 'Accept: application/json'
 ```
