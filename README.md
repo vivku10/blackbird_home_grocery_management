@@ -19,14 +19,14 @@ blackbird deployment update grocery-management --dockerfile Dockerfile --context
 
 ## Endpoint definitions and commands
 
-### Endpoint 1 - Get all grocery items in the fridge
+#### Endpoint 1 - Get all grocery items in the fridge
 ```
 curl --request GET \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items \
   --header 'Accept: application/json'
 ```
 
-### Endpoint 2 - Add a new grocery item to the fridge
+#### Endpoint 2 - Add a new grocery item to the fridge
 ```
 curl --request POST \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items \
@@ -40,14 +40,14 @@ curl --request POST \
 }'
 ```
 
-### Endpoint 3 - Get a grocery item by ID
+#### Endpoint 3 - Get a grocery item by ID
 ```
 curl --request GET \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/3 \
   --header 'Accept: application/json'
 ```
 
-### Endpoint 4 - Update a grocery item by ID
+#### Endpoint 4 - Update a grocery item by ID
 ```
 curl --request PUT \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/3 \
@@ -62,20 +62,20 @@ curl --request PUT \
 }'
 ```
 
-### Endpoint 5 - Delete a grocery item
+#### Endpoint 5 - Delete a grocery item
 ```
 curl --request DELETE \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/22
 ```
 
-### Endpoint 6 - Search for a grocery item
+#### Endpoint 6 - Search for a grocery item
 ```
 curl --request GET \
   --url 'https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/search?query=Burger' \
   --header 'Accept: application/json'
 ```
 
-### Endpoint 7 - Get all expired grocery items
+#### Endpoint 7 - Get all expired grocery items
 ```
 curl --request GET \
   --url https://default-blackbird-viveks-organization-865b3-0.blackbird-relay.a8r.io/grocery-management/items/expired \
