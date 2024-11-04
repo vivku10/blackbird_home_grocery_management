@@ -1,0 +1,91 @@
+name: grocery-management
+
+on:
+  push:
+    branches:
+      - "**"
+
+env:
+  GO_VERSION: 1.22.0
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      GH_API_KEY: ${{ secrets.GH_API_KEY }}
+    steps:
+      - name: Checkout local
+        uses: actions/checkout@v3
+
+      - name: Setup Git Config
+        shell: bash
+        run: |
+          set -x
+          git config --global user.email '${{ secrets.GH_AUTO_EMAIL }}'
+          git config --global user.name '${{ secrets.GH_AUTO_USER }}'
+          git config --global url.https://${GH_API_KEY}@github.com/.insteadOf https://github.com/
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ env.GO_VERSION }}"
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin v1.50.0
+
+  go-tests:
+    runs-on: ubuntu-latest
+    env:
+      GH_API_KEY: ${{ secrets.GH_API_KEY }}
+    steps:
+      - name: Checkout local
+        uses: actions/checkout@v3
+      - name: Setup Git Config
+        shell: bash
+        run: |
+          set -x
+          git config --global user.email '${{ secrets.GH_AUTO_EMAIL }}'
+          git config --global user.name '${{ secrets.GH_AUTO_USER }}'
+          git config --global url.https://${GH_API_KEY}@github.com/.insteadOf https://github.com/
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ env.GO_VERSION }}"
+
+      - name: Go tests
+        run: |
+           go mod download
+           go test -v ./cmd... -race
+           go test -v ./internal... -race
+        working-directory: ./grocerymanagement/grocery-management/
+  deploy:
+    needs: [lint, go-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local
+        uses: actions/checkout@v3
+        
+      - name: Create directory
+        run: mkdir -p /usr/local/bin
+
+      - name: Install Blackbird CLI
+        run: curl -fL 'https://blackbird.a8r.io/api/download/cli/v1.7.0/linux/amd64' -o /usr/local/bin/blackbird
+
+      - name: Make the binary executable
+        run: chmod a+x /usr/local/bin/blackbird
+        
+      # - name: Blackbird Login
+      #   run: blackbird login
+
+      # - name: Deploy to Blackbird
+      #   run: blackbird deployment update grocery-management --dockerfile Dockerfile --context .
+      #   working-directory: ./grocerymanagement/grocery-management/
+
+      # - name: Check Deployment Status
+      #   run: blackbird deployment status
+
+      # - name: Logout from Blackbird
+      #   run: blackbird logout
