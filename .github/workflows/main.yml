@@ -60,7 +60,7 @@ jobs:
            go mod download
            go test -v ./cmd... -race
            go test -v ./internal... -race
-        working-directory: ./grocerymanagement/grocery-management/
+        working-directory: ./src/
   deploy:
     needs: [lint, go-tests]
     runs-on: ubuntu-latest
